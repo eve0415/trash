@@ -1,10 +1,12 @@
 import { Message } from 'discord.js';
 
-interface runFunction {
-    (message: Message, args: Array<string>): Promise<void>;
-}
+type runFunction = (message: Message, args: string[]) => Promise<void | Message>;
 
-export default interface Command {
+type keyToValue = {
+    [key: string]: string;
+};
+
+type Command = {
     name: string;
     run: runFunction;
 };

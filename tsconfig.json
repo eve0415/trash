@@ -4,8 +4,8 @@
         "allowSyntheticDefaultImports": true,
         "alwaysStrict": true,
         "declaration": true,
-        "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "incremental": true,
         "lib": [
             "esnext",
@@ -16,13 +16,15 @@
         ],
         "module": "commonjs",
         "moduleResolution": "node",
+        "noImplicitAny": false,
         "noUnusedLocals": true,
+        "outDir": "dist",
         "pretty": true,
         "removeComments": true,
         "resolveJsonModule": true,
+        "skipLibCheck": true,
         "sourceMap": true,
         "strict": true,
-        "noImplicitAny": false,
         "target": "esnext",
         "types": [
             "node"
