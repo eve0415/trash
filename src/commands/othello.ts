@@ -188,7 +188,7 @@ class othello {
             this.state = 'processing';
             this.placeStone(cell);
             this.changeTurn();
-        }, 5000);
+        }, 7000);
     }
 
     private skipTurn() {
@@ -267,8 +267,8 @@ class othello {
         const embedColor = winColor === 'draw'
             ? 12370112
             : winColor === 'blackWin'
-                ? 16777214
-                : 1;
+                ? 1
+                : 16777214;
 
         this.boardMessage.edit({ embed: { color: embedColor, image: { url: this.boardMessage.embeds[0].image?.url } } });
         this.message.edit(`${winPlayer} WIN!!!\nBlack: ${blackCell.length}    White: ${whiteCell.length}`);
@@ -366,7 +366,7 @@ class grid {
 const createBoard = (canvas: Canvas) => {
     const context = canvas.getContext('2d');
     context.font = '55px Times New Roman';
-    context.fillText('A B  C   D    E F  G   H', 75, 60);
+    context.fillText('A  B  C  D  E  F  G  H', 75, 60);
     for (let i = 1; i <= 8; i++) {
         context.fillText(i.toString(), 30, 115 + (i - 1) * 64);
     }
