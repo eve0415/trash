@@ -41,6 +41,7 @@ const startGame = async (message: Message, player: User | 'cpu' = 'cpu') => {
 
 class othello {
     ready = false;
+    skipped = 0;
     state: state;
     lastState!: state;
     grid: grid;
@@ -153,12 +154,12 @@ class othello {
         }
     }
 
-    private async changeTurn() {
+    private async changeTurn(edit = true) {
         const nextState = this.lastState === 'black' ? 'white' : 'black';
         const nextColor = nextState === 'black' ? 'black' : 'white';
         const nextPlayer = nextState === 'black' ? this.players.black : this.players.white;
 
-        await this.editBoard();
+        await this.editBoard(edit);
 
         if (this.isBoardFull()) return this.gameFinish();
 
@@ -170,6 +171,8 @@ class othello {
         if (this.placeableCells.length === 0) {
             return this.skipTurn();
         }
+
+        this.skipped = 0;
 
         if (nextPlayer === 'cpu') {
             await this.message.edit(`${instance.getClient().user} is thinking...`);
@@ -192,11 +195,13 @@ class othello {
     }
 
     private skipTurn() {
+        this.skipped++;
+        if (this.skipped === 2) this.gameFinish();
         const player = this.state === 'black' ? this.players.black : this.players.white;
         if (player !== 'cpu') this.sendMessageAndDelete(`${player}, sorry! There aren't any space that you can put! Skipping...`);
         this.lastState = this.state;
         this.state = 'processing';
-        this.changeTurn();
+        this.changeTurn(false);
     }
 
     private isBoardFull() {
@@ -219,18 +224,21 @@ class othello {
         this.placeableCells = await getPlacableCells(this.board, type);
     }
 
-    private async editBoard() {
-        const canvas = new Canvas(600, 600);
-        const context = createBoard(canvas);
-        drawStone(context, this.board);
+    private async editBoard(refresh: boolean) {
+        let url = this.boardMessage.embeds[0].image?.url;
+        if (refresh) {
+            const canvas = new Canvas(600, 600);
+            const context = createBoard(canvas);
+            drawStone(context, this.board);
 
-        const attachment = new MessageAttachment(canvas.toBuffer());
-        const channelID = process.env.CACHE_CHANNEL ?? '';
-        const cacheChannel: TextChannel = instance.getClient().channels.cache.get(channelID) as TextChannel;
-        if (!cacheChannel) return this.error();
-        const pictureMessage = await cacheChannel.send(attachment);
-
-        await this.boardMessage.edit({ embed: { color: this.lastState === 'black' ? 16777214 : 1, image: { url: pictureMessage.attachments.first()?.url } } });
+            const attachment = new MessageAttachment(canvas.toBuffer());
+            const channelID = process.env.CACHE_CHANNEL ?? '';
+            const cacheChannel: TextChannel = instance.getClient().channels.cache.get(channelID) as TextChannel;
+            if (!cacheChannel) return this.error();
+            const pictureMessage = await cacheChannel.send(attachment);
+            url = pictureMessage.attachments.first()?.url;
+        }
+        await this.boardMessage.edit({ embed: { color: this.lastState === 'black' ? 16777214 : 1, image: { url: url } } });
     }
 
     private sendMessageAndDelete(content: string) {
